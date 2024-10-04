@@ -19,7 +19,7 @@ const PasswordField: React.FC<PasswordFieldProps> = ({
   name = 'password-field',
   value,
   onChange,
-  placeholder = 'Enter your password',
+  placeholder = '',
   fullWidth = false,
   fullHeight = false,
   margin = 'normal',

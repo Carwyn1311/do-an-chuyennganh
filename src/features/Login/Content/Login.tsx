@@ -1,10 +1,9 @@
+import axios from 'axios';
 import { IoMdLock } from 'react-icons/io';
 import { BiUser } from 'react-icons/bi';
 import React, { useState, useEffect } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import '../.css/Login.css';
-import axios from 'axios';
-import { auth, googleProvider } from '../../firebaseConfig';
 import TextField from '../../../components/TextField/TextField';
 import PasswordField from '../../../components/PasswordField/PasswordField';
 
@@ -13,6 +12,7 @@ const Login = (): JSX.Element => {
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUserName = localStorage.getItem('userName') ?? '';
@@ -48,12 +48,14 @@ const Login = (): JSX.Element => {
     }
 
     try {
-      const response = await axios.post('/login', {
+      const response = await axios.post('https://chat-api-backend-x4dl.onrender.com/auth/authenticate', {
         username: userName,
-        password: password.trim()
+        password: password,
       });
 
-      if (response.data.success) {
+      if (response.status === 200 && response.data.token) {
+        const token = response.data.token;
+
         if (rememberMe) {
           localStorage.setItem('userName', userName);
           localStorage.setItem('password', password);
@@ -63,28 +65,29 @@ const Login = (): JSX.Element => {
           localStorage.removeItem('password');
           localStorage.removeItem('rememberMe');
         }
-        localStorage.setItem('token', response.data.token);
+
+        localStorage.setItem('token', token);
         console.log('Logged in successfully');
+        navigate('/dashboard');
       } else {
-        setError('Failed to login. Please check your credentials.');
+        setError('Invalid username or password.');
       }
     } catch (error) {
-      setError('Failed to login. Please check your credentials.');
+      console.error('Error during login:', error);
+      setError('Failed to authenticate. Please try again.');
     }
   };
 
-  const handleGoogleLogin = async (): Promise<void> => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      console.log('Logged in with Google:', user);
-    } catch (error) {
-      setError('Failed to login with Google');
-    }
+  const handleCreateAccount = (): void => {
+    navigate('/create-account');
+  };
+
+  const handleForgotPassword = (): void => {
+    navigate('/forgot-password');
   };
 
   const handleGoogleLoginClick = (): void => {
-    handleGoogleLogin().catch(console.error);
+    console.log('Google Login clicked');
   };
 
   return (
@@ -93,31 +96,32 @@ const Login = (): JSX.Element => {
         <div className="form-group">
           <div className="login-container">
             <h3 className="text-top-label">AI CHAT</h3>
-            <h2 className="login-title">Log in</h2>
-            <form className="login-form" onSubmit={handleSubmit}>
-              {/* Username input */}
+            <h2 className="login-title">Login</h2>
+            <form
+              className="login-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(e);
+              }}
+            >
               <div className="input-group">
-                <BiUser className="user-icon" /> {/* Đưa icon ra bên ngoài */}
+                <BiUser className="user-icon" />
                 <TextField
                   value={userName}
                   onChange={handleUserNameChange}
-                  placeholder=""
                   label="User Name"
                   fullWidth={true}
                 />
               </div>
-              {/* Password input */}
               <div className="input-group">
-                <IoMdLock className="user-icon" /> {/* Đưa icon ra bên ngoài */}
+                <IoMdLock className="user-icon" />
                 <PasswordField
                   value={password}
                   onChange={handlePasswordChange}
-                  placeholder=""
                   label="Password"
                   fullWidth={true}
                 />
               </div>
-              {/* Remember me */}
               <div className="input-group">
                 <input
                   type="checkbox"
@@ -132,11 +136,19 @@ const Login = (): JSX.Element => {
             <button onClick={handleGoogleLoginClick} className="google-login-btn">
               Log In With Google
             </button>
+            <div className="horizontal-buttons">
+              <button onClick={handleCreateAccount} className="create-account-btn">
+                Create Account
+              </button>
+              <button onClick={handleForgotPassword} className="forgot-password-btn">
+                Forgot Password
+              </button>
+            </div>
           </div>
         </div>
       </div>
       <footer>
-      <p style={{ color: "white" }}>© 2024 AI CHAT. <strong>Version 4.3.0.0 [20231608]</strong></p>
+      <p style={{ textAlign: 'center', fontSize: '16px', marginTop: '20px', color: 'white' }}>© 2024 AI CHAT. <strong>Version 4.3.0.0 [20231608]</strong></p>
       </footer>
     </div>
   );

@@ -20,7 +20,7 @@ const TextField: React.FC<TextFieldProps> = ({
   name = 'text-field',
   value,
   onChange,
-  placeholder = 'Enter text',
+  placeholder = '',
   fullWidth = false,
   fullHeight = false,
   margin = 'normal',

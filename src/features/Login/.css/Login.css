@@ -143,3 +143,18 @@ footer a {
 footer a:hover {
   text-decoration: underline;
 }
+
+.horizontal-buttons {
+  display: flex;
+  justify-content: space-between; /* Tạo khoảng cách giữa hai nút */
+  margin-top: 10px; /* Khoảng cách trên với các phần tử khác */
+}
+
+/* Style for the buttons */
+.create-account-btn,
+.forgot-password-btn {
+  flex: 1; /* Tạo kích thước nút cân bằng */
+  margin: 0 5px; /* Khoảng cách giữa hai nút */
+  padding: 5px 10px; /* Giảm kích thước nút */
+  font-size: 14px; /* Giảm kích thước chữ */
+}
